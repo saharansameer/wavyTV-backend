@@ -6,55 +6,54 @@ const userSchema = new Schema(
     {
         username: {
             type: String,
-            required: true,
+            required: [true, "username is required"],
             unique: true,
             lowercase: true,
             trim: true,
-            index: true
+            index: true,
         },
         fullName: {
             type: String,
-            required: true,
+            required: [true, "Fullname is required"],
             index: true,
         },
         email: {
             type: String,
-            required: true,
+            required: [true, "Email is required"],
             unique: true,
             lowercase: true,
-            trim: true
+            trim: true,
         },
         password: {
             type: String,
-            required: true
+            required: [true, "Password is required"],
+            minLength: [8, "Password should contain atleast 8 characters"],
         },
         refreshToken: {
-            type: String
+            type: String,
         },
         avatar: {
-            type: String
+            type: String,
         },
         coverImage: {
-            type: String
+            type: String,
         },
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "Video"
-            }
-        ]
-
-
-    }, 
+                ref: "Video",
+            },
+        ],
+    },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 
