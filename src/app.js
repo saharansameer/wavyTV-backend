@@ -11,8 +11,14 @@ app.use(cors({
 }));
 
 app.use(express.json({limit: SIZE_LIMIT})); 
-app.use(express.urlencoded({extended: true, limit: SIZE_LIMIT}));
+app.use(express.urlencoded({extended: false, limit: SIZE_LIMIT}));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+// routes import
+import authRouter from "./routes/auth.routes.js";
+
+// routes declaration
+app.use("/auth", authRouter);
 
 export default app;
