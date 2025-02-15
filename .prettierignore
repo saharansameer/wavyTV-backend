@@ -1,8 +1,33 @@
-*.env
-.env
-.env.sample
-.md
+# Ignore node_modules
+node_modules
 
-/.vscode
-/node_modules
-./dist
+# Ignore build output
+dist
+build
+coverage
+
+# Ignore environment files
+.env
+.env.local
+.env.production
+.env.test
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore generated files
+*.min.js
+*.min.css
+*.map
+
+# Ignore specific folders
+public
+logs
+tmp
+
+# Ignore some files and folders
+*.md
+.gitignore
+.vscode
