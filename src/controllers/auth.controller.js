@@ -93,4 +93,97 @@ const registerUser = async (req, res) => {
     );
 };
 
-export { registerUser };
+const loginUser = async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        throw new ApiError({
+            status: 400,
+            message: "Invalid username or password"
+        });
+    }
+    // Finding user using username or email, whatever client send in response
+    const user = await User.findOne({
+        $or: [{ username: username }, { email: username }]
+    });
+
+    // If user not found with the given username or email
+    if (!user) {
+        throw new ApiError({
+            status: 404,
+            message: "User not found with the given username or email"
+        });
+    }
+
+    // If user found, now compare password
+    const isPasswordValid = await user.isPasswordCorrect(password);
+    if (!isPasswordValid) {
+        throw new ApiError({ status: 401, message: "Password is not valid" });
+    }
+
+    // Method for Generate access and refresh tokens
+    const generateTokens = async (userId) => {
+        try {
+            const user = await User.findById(userId);
+            const accessToken = user.generateAccessToken();
+            const refreshToken = user.generateRefreshToken();
+
+            user.refreshToken = refreshToken;
+            await user.save({ validateBeforeSave: false });
+
+            return { accessToken, refreshToken };
+        } catch (err) {
+            throw new ApiError({
+                status: 500,
+                message: "Unable to Generate Tokens"
+            });
+        }
+    };
+
+    // Generating access and refresh tokens
+    const { accessToken, refreshToken } = await generateTokens(user._id);
+
+    // Cookies options configuration
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .setHeader("Authorization", `Bearer ${accessToken}`)
+        .json(
+            new ApiResponse({
+                status: 200,
+                message: "User logged in successfully",
+            })
+        );
+};
+
+const logoutUser = async (req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        { $set: { refreshToken: "" } },
+        { new: true }
+    );
+
+    // Cookies options configuration
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(
+            new ApiResponse({
+                status: 200,
+                message: "User logged out successfully"
+            })
+        );
+};
+
+export { registerUser, loginUser, logoutUser };
