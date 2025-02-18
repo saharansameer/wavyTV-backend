@@ -17,7 +17,7 @@ router.route("/signup").post(
 
 router.route("/signin").post(asyncHandler(loginUser));
 
-router.route("/logout").post(verifyJWT, asyncHandler(logoutUser));
+router.route("/logout").post(asyncHandler(verifyJWT), asyncHandler(logoutUser));
 
 router.use(errorHandler);
 
