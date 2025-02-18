@@ -3,12 +3,10 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 export const verifyJWT = async (req, res, next) => {
-    const token =
-        req.cookies?.accessToken ||
-        req.headers["authorization"]?.replace("Bearer ", "");
+    const token = req.cookies?.accessToken;
 
     if (!token) {
-        throw new ApiError({ status: 401, message: "Unauthorized Token" });
+        throw new ApiError({ status: 401, message: "User is already logged out" });
     }
 
     const loggedInUser = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
