@@ -2,6 +2,27 @@ import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { cookiesOptions } from "../constants.js";
+import jwt from "jsonwebtoken";
+
+// Method for Generate access and refresh tokens
+const generateTokens = async (userId) => {
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        return { accessToken, refreshToken };
+    } catch (err) {
+        throw new ApiError({
+            status: 500,
+            message: "Unable to Generate Tokens"
+        });
+    }
+};
 
 const registerUser = async (req, res) => {
     const { fullName, username, email, password } = req.body;
@@ -120,43 +141,17 @@ const loginUser = async (req, res) => {
         throw new ApiError({ status: 401, message: "Password is not valid" });
     }
 
-    // Method for Generate access and refresh tokens
-    const generateTokens = async (userId) => {
-        try {
-            const user = await User.findById(userId);
-            const accessToken = user.generateAccessToken();
-            const refreshToken = user.generateRefreshToken();
-
-            user.refreshToken = refreshToken;
-            await user.save({ validateBeforeSave: false });
-
-            return { accessToken, refreshToken };
-        } catch (err) {
-            throw new ApiError({
-                status: 500,
-                message: "Unable to Generate Tokens"
-            });
-        }
-    };
-
     // Generating access and refresh tokens
     const { accessToken, refreshToken } = await generateTokens(user._id);
 
-    // Cookies options configuration
-    const options = {
-        httpOnly: true,
-        secure: true
-    };
-
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .setHeader("Authorization", `Bearer ${accessToken}`)
+        .cookie("accessToken", accessToken, cookiesOptions)
+        .cookie("refreshToken", refreshToken, cookiesOptions)
         .json(
             new ApiResponse({
                 status: 200,
-                message: "User logged in successfully",
+                message: "User logged in successfully"
             })
         );
 };
@@ -168,20 +163,60 @@ const logoutUser = async (req, res) => {
         { new: true }
     );
 
-    // Cookies options configuration
-    const options = {
-        httpOnly: true,
-        secure: true
-    };
-
     return res
         .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", cookiesOptions)
+        .clearCookie("refreshToken", cookiesOptions)
         .json(
             new ApiResponse({
                 status: 200,
                 message: "User logged out successfully"
+            })
+        );
+};
+
+const refreshAccessToken = async (req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken;
+    if (!incomingRefreshToken) {
+        throw new ApiError({
+            status: 400,
+            message: "Refresh Token is not in cookies"
+        });
+    }
+
+    const decodedToken = jwt.verify(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+    if (!decodedToken) {
+        throw new ApiError({
+            status: 400,
+            message: "Refresh token is expired or invalid"
+        });
+    }
+
+    const user = await User.findById(decodedToken._id);
+    if (!user) {
+        throw new ApiError({
+            status: 400,
+            message: "Invalid refresh token payload e.g. _id"
+        });
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+        throw new ApiError({ status: 400, message: "Tokens does not match" });
+    }
+
+    const { accessToken, refreshToken } = await generateTokens(user._id);
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, cookiesOptions)
+        .cookie("refreshToken", refreshToken, cookiesOptions)
+        .json(
+            new ApiResponse({
+                status: 200,
+                message: "New accessToken generated successfully"
             })
         );
 };
