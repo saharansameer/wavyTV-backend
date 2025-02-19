@@ -31,14 +31,12 @@ const updateUserAccountDetails = async (req, res) => {
         });
     }
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse({
-                status: 200,
-                message: "User account details updated successfully"
-            })
-        );
+    return res.status(200).json(
+        new ApiResponse({
+            status: 200,
+            message: "User account details updated successfully"
+        })
+    );
 };
 
 const updateUserChannelDetails = async (req, res) => {
@@ -46,9 +44,15 @@ const updateUserChannelDetails = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     // Local path of uploaded avatar and coverImage
-    console.log(req.files)
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // These (.coverImage?. and .avatar?.) checks are useful when user wants to update only one field,
+    // either avatar or either coverImage
+    const avatarLocalPath = req.files?.avatar?.avatar[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage?.coverImage[0]?.path;
+  
+    // If user dont upload new images for avatar and coverImage
+    if (!avatarLocalPath && !coverImageLocalPath) {
+        throw new ApiError({status: 400, message: "no changes made by user for avatar and coverImage"})
+    }
 
     if (avatarLocalPath) {
         const newAvatar = await uploadOnCloudinary(avatarLocalPath);
