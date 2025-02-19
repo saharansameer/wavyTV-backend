@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser } from "../controllers/auth.controller.js";
+import {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken
+} from "../controllers/auth.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { errorHandler } from "../middlewares/error.middleware.js";
@@ -18,6 +23,8 @@ router.route("/signup").post(
 router.route("/signin").post(asyncHandler(loginUser));
 
 router.route("/logout").post(asyncHandler(verifyJWT), asyncHandler(logoutUser));
+
+router.route("/token").post(asyncHandler(refreshAccessToken));
 
 router.use(errorHandler);
 
