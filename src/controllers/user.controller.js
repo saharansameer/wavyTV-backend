@@ -2,6 +2,16 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 
+const getCurrentUser = async (req, res) => {
+    const user = await User.findById(req.user._id).select("-password -refreshToken");
+    return res.status(200).json(
+        new ApiResponse({
+            status: 200,
+            message: "User fetched successfully",
+            data: user
+        })
+    );
+};
 
 const changeUserPassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -45,4 +55,4 @@ const changeUserPassword = async (req, res) => {
     );
 };
 
-export { changeUserPassword};
+export { changeUserPassword, getCurrentUser };
