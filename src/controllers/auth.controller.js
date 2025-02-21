@@ -27,7 +27,7 @@ const generateTokens = async (userId) => {
 const registerUser = async (req, res) => {
     const { fullName, username, email, password } = req.body;
 
-    // checks if any field is empty or not
+    // Checks if any field is empty or not
     if (
         [fullName, username, email, password].some(
             (field) => field?.trim() === ""
@@ -36,24 +36,24 @@ const registerUser = async (req, res) => {
         throw new ApiError(400, "All fields are required");
     }
 
-    // email validation
+    // Email validation
     const emailRegex =
         /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i;
     if (!emailRegex.test(email)) {
         throw new Error(400, "Email is not valid");
     }
 
-    // checks if user already exists or not
+    // Checks if user already exists or not
     const userExists = await User.findOne({ $or: [{ username }, { email }] });
     if (userExists) {
-        // checks if username already exists
+        // Checks if username already exists
         if (userExists.username === username) {
             throw new ApiError({
                 status: 409,
                 message: "username already exists"
             });
         }
-        // checks if email already exists
+        // Checks if email already exists
         if (userExists.email === email) {
             throw new ApiError({
                 status: 409,
@@ -65,39 +65,15 @@ const registerUser = async (req, res) => {
     // password validation (not active yet)
     // const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm
 
-    // avatar and cover image local path config
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    if (!avatarLocalPath) {
-        throw new ApiError({ status: 400, message: "Avatar is required" });
-    }
-
-    // uploading avatar on cloud
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-    if (!avatar) {
-        throw new ApiError({ status: 400, message: "Unable to upload avatar" });
-    }
-    if (!coverImage) {
-        throw new ApiError({
-            status: 400,
-            message: "Unable to upload cover image"
-        });
-    }
-
-    // user creation
+    // User creation
     const createdUser = await User.create({
         fullName,
         username,
         email,
-        password,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || ""
+        password
     });
 
-    // clears password from body
-
-    // checks if user document created successfully
+    // Checks if user document created successfully
     if (!createdUser) {
         throw new ApiError({
             status: 400,
