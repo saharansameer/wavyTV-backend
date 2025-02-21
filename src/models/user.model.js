@@ -35,9 +35,16 @@ const userSchema = new Schema(
         avatar: {
             type: String,
         },
+        avatarPublicId: {
+            type: String
+        },
         coverImage: {
             type: String,
         },
+        coverImagePublicId: {
+           type: String 
+        }
+        ,
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,
