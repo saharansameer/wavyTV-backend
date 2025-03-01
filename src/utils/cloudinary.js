@@ -14,10 +14,10 @@ const uploadOnCloudinary = async (localFilePath, resourceType, folderName) => {
             resource_type: resourceType,
             folder: folderName
         });
-        console.log(response);
+
         // Removes files from public/temp directory after uploading to cloudinary
         fs.unlinkSync(localFilePath);
-
+        
         return response;
     } catch (err) {
         fs.unlinkSync(localFilePath);
