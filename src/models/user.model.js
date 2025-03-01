@@ -10,12 +10,12 @@ const userSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
-            index: true,
+            index: true
         },
         fullName: {
             type: String,
             required: [true, "Fullname is required"],
-            index: true,
+            index: true
         },
         email: {
             type: String,
@@ -23,37 +23,44 @@ const userSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            match: [
+                /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
+                "Please enter a valid email address"
+            ]
         },
         password: {
             type: String,
             required: [true, "Password is required"],
-            minLength: [8, "Password should contain atleast 8 characters"],
+            minLength: [8, "Password length should be atleast 8 or greater"],
+            match: [
+                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/,
+                "Password should contain alteast one uppercase, one lowercase, one digit and one special character (e.g. Pass@123)"
+            ]
         },
         refreshToken: {
-            type: String,
+            type: String
         },
         avatar: {
-            type: String,
+            type: String
         },
         avatarPublicId: {
             type: String
         },
         coverImage: {
-            type: String,
+            type: String
         },
         coverImagePublicId: {
-           type: String 
-        }
-        ,
+            type: String
+        },
         watchHistory: [
             {
                 type: Schema.Types.ObjectId,
-                ref: "Video",
-            },
-        ],
+                ref: "Video"
+            }
+        ]
     },
     {
-        timestamps: true,
+        timestamps: true
     }
 );
 
@@ -71,13 +78,13 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
-            _id: this._id,
+            _id: this._id
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
-    )
+    );
 };
 
 userSchema.methods.generateRefreshToken = function () {
@@ -89,7 +96,7 @@ userSchema.methods.generateRefreshToken = function () {
         {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
-    )
+    );
 };
 
 export const User = mongoose.model("User", userSchema);
