@@ -22,7 +22,11 @@ const getCurrentUser = async (req, res) => {
 const updateUserAccountDetails = async (req, res) => {
     const { fullName, username, email } = req.body;
 
-    // To-Do: email validatoin and what if any field is empty
+    // If any field is empty
+    if (!fullName || !username || !email) {
+        throw new ApiError({ status: 400, message: "All fields (i.e. fullName, username, email) are required " });
+    }
+
     const user = await User.findByIdAndUpdate(
         req.user._id,
         { $set: { fullName, username, email } },
