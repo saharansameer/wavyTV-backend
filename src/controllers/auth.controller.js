@@ -1,7 +1,6 @@
 import ApiResponse from "../utils/apiResponse.js";
 import ApiError from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { cookiesOptions } from "../constants.js";
 import jwt from "jsonwebtoken";
 
@@ -33,14 +32,7 @@ const registerUser = async (req, res) => {
             (field) => field?.trim() === ""
         )
     ) {
-        throw new ApiError(400, "All fields are required");
-    }
-
-    // Email validation
-    const emailRegex =
-        /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i;
-    if (!emailRegex.test(email)) {
-        throw new Error(400, "Email is not valid");
+        throw new ApiError({ status: 400, message: "All fields are required" });
     }
 
     // Checks if user already exists or not
@@ -62,23 +54,34 @@ const registerUser = async (req, res) => {
         }
     }
 
-    // password validation (not active yet)
-    // const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm
-
-    // User creation
-    const createdUser = await User.create({
+    // User creation (without validation)
+    const user = new User({
         fullName,
         username,
         email,
         password
     });
 
-    // Checks if user document created successfully
-    if (!createdUser) {
+    // User validation check
+    try {
+        await user.validate();
+    } catch (err) {
+        const validationError = [];
+        for (const key in err.errors) {
+            validationError.push(err.errors[key].message);
+        }
         throw new ApiError({
             status: 400,
-            message: "Error while creating user"
+            message: "Validation Error",
+            errors: validationError.join(", ")
         });
+    }
+
+    // User creation in database along with successful validation
+    try {
+        await user.save();
+    } catch (err) {
+        throw new ApiError({ status: 500, message: err.message });
     }
 
     return res.json(
