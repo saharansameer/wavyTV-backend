@@ -17,7 +17,7 @@ const uploadOnCloudinary = async (localFilePath, resourceType, folderName) => {
 
         // Removes files from public/temp directory after uploading to cloudinary
         fs.unlinkSync(localFilePath);
-        
+
         return response;
     } catch (err) {
         fs.unlinkSync(localFilePath);

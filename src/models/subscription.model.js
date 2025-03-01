@@ -6,12 +6,10 @@ const subscriptionSchema = Schema(
             type: Schema.Types.ObjectId,
             ref: "User"
         },
-        subscriber: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "User"
-            }
-        ]
+        subscriber: {
+            type: Schema.Types.ObjectId,
+            ref: "User"
+        }
     },
     { timestamps: true }
 );

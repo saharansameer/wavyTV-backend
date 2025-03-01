@@ -24,7 +24,10 @@ const updateUserAccountDetails = async (req, res) => {
 
     // If any field is empty
     if (!fullName || !username || !email) {
-        throw new ApiError({ status: 400, message: "All fields (i.e. fullName, username, email) are required " });
+        throw new ApiError({
+            status: 400,
+            message: "All fields (i.e. fullName, username, email) are required "
+        });
     }
 
     const user = await User.findByIdAndUpdate(
@@ -105,9 +108,13 @@ const updateUserChannelDetails = async (req, res) => {
 
     // Delete old avatar/coverImage from cloudinary
     if (oldAvatarPublicId) {
-        const deleteOldAvatar = await deleteImageFromCloudinary(oldAvatarPublicId);
+        const deleteOldAvatar =
+            await deleteImageFromCloudinary(oldAvatarPublicId);
         if (!deleteOldAvatar) {
-            throw new ApiError({status: 500, message: "Unable to delete old avatar from cloudinary"})
+            throw new ApiError({
+                status: 500,
+                message: "Unable to delete old avatar from cloudinary"
+            });
         }
     }
     if (oldCoverImagePublicId) {
@@ -115,14 +122,18 @@ const updateUserChannelDetails = async (req, res) => {
             oldCoverImagePublicId
         );
         if (!deleteOldCoverImage) {
-            throw new ApiError({status: 500, message: "Unable to delete old coverImage from cloudinary"})
+            throw new ApiError({
+                status: 500,
+                message: "Unable to delete old coverImage from cloudinary"
+            });
         }
     }
-    
+
     return res.status(200).json(
         new ApiResponse({
             status: 200,
-            message: "New Avatar and CoverImage updated successfully and Removed old Avatar and CoverImage from cloudinary"
+            message:
+                "New Avatar and CoverImage updated successfully and Removed old Avatar and CoverImage from cloudinary"
         })
     );
 };

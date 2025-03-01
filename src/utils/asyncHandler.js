@@ -8,7 +8,6 @@ export const asyncHandler = (requestHandler) => {
     };
 };
 
-
 // Resolve/Reject Syntax
 /* 
 export const asyncHandler = (requestHandler) => {
