@@ -1,9 +1,9 @@
 import { Router } from "express";
 import {
-    registerUser,
-    loginUser,
-    logoutUser,
-    refreshAccessToken
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken
 } from "../controllers/auth.controller.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { errorHandler } from "../middlewares/error.middleware.js";
