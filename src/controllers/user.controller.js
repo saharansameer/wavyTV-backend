@@ -180,9 +180,72 @@ const changeUserPassword = async (req, res) => {
     );
 };
 
+const getUserChannelProfile = async (req, res) => {
+    const { username } = req.params;
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+                username: username.toLowerCase()
+            },
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            },
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribed"
+            },
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+                subscribedCount: {
+                    $size: "$subscribed"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: { $in: [req.user?._id, "$subscribers"] },
+                        then: true,
+                        else: false
+                    }
+                }
+            },
+            $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+                coverImage: 1,
+                subscribersCount: 1,
+                subscribedCount: 1,
+                isSubscribed: 1
+            }
+        }
+    ]);
+
+    if (!channel.length) {
+        throw new ApiError({
+            status: 400,
+            message: "Channel does not exists"
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse({
+            status: 200,
+            message: "Channel fetched successfully"
+        })
+    );
+};
+
 export {
     changeUserPassword,
     getCurrentUser,
     updateUserAccountDetails,
-    updateUserChannelDetails
+    updateUserChannelDetails,
+    getUserChannelProfile
 };
