@@ -6,7 +6,8 @@ import {
     getCurrentUser,
     updateUserAccountDetails,
     updateUserChannelDetails,
-    changeUserPassword
+    changeUserPassword,
+    getUserChannelProfile
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -14,7 +15,7 @@ const router = Router();
 
 // GET - current user details
 router
-    .route("/:username")
+    .route("/info/:username")
     .get(asyncHandler(verifyJWT), asyncHandler(getCurrentUser));
 
 // PATCH - fullname, username, email
@@ -36,6 +37,9 @@ router.route("/:username/channel").patch(
 router
     .route("/:username/security")
     .patch(asyncHandler(verifyJWT), asyncHandler(changeUserPassword));
+
+// GET - User Channel Profile
+router.route("/:username").get(asyncHandler(getUserChannelProfile));
 
 router.use(errorHandler);
 
