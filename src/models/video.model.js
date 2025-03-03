@@ -9,7 +9,6 @@ const videoSchema = new Schema(
     },
     description: {
       type: String,
-      required: true
     },
     duration: {
       type: Number
@@ -30,10 +29,16 @@ const videoSchema = new Schema(
       type: String,
       required: true
     },
+    videoFilePublicId: {
+      type: String
+    },
     thumbnail: {
       type: String,
       required: true
-    }
+    },
+    thumbnailPublicId: {
+      type: String
+    },
   },
   {
     timestamps: true
