@@ -19,9 +19,11 @@ router
   .route("/info/:username")
   .get(asyncHandler(verifyJWT), asyncHandler(getCurrentUser));
 
+// GET - User Channel Profile
 // PATCH - fullname, username, email
 router
   .route("/:username")
+  .get(asyncHandler(getUserChannelProfile))
   .patch(asyncHandler(verifyJWT), asyncHandler(updateUserAccountDetails));
 
 // PATCH - avatar, coverImage
@@ -39,14 +41,12 @@ router
   .route("/:username/security")
   .patch(asyncHandler(verifyJWT), asyncHandler(changeUserPassword));
 
-// GET - User Channel Profile
-router.route("/:username").get(asyncHandler(getUserChannelProfile));
-
 // GET - User Watch History
 router
   .route("/:username/history")
   .get(asyncHandler(verifyJWT), asyncHandler(getUserWatchHistory));
 
+// Error Handler
 router.use(errorHandler);
 
 export default router;
