@@ -20,9 +20,11 @@ app.use(cookieParser());
 // routes import
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
+import videoRouter from "./routes/video.routes.js";
 
 // routes declaration
-app.use("/auth", authRouter);
-app.use("/user", userRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
+app.use("/api/video", videoRouter);
 
 export default app;
