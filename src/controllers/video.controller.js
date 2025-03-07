@@ -86,4 +86,50 @@ const uploadVideo = async (req, res) => {
   );
 };
 
-export { getAllVideos, uploadVideo };
+const getVideoById = async (req, res) => {
+  const { videoId } = req.params;
+
+  const video = await Video.aggregate([
+    {
+      $match: {
+        videoFileDisplayName: videoId
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              username: 1,
+              fullName: 1,
+              avatar: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner"
+        }
+      }
+    }
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new ApiReponse({
+        status: 200,
+        message: "Video fetched successfully",
+        data: video
+      })
+    );
+};
+
+export { getAllVideos, uploadVideo, getVideoById };
