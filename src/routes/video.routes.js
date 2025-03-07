@@ -6,7 +6,8 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   getAllVideos,
   uploadVideo,
-  getVideoById
+  getVideoById,
+  updateVideoDetails
 } from "../controllers/video.controller.js";
 
 const router = Router();
@@ -26,7 +27,15 @@ router
   );
 
 // GET - fetch video by id
-router.route("/:videoId").get(asyncHandler(getVideoById));
+// POST - update video details (i.e title, description, thumbnail)
+router
+  .route("/:videoId")
+  .get(asyncHandler(getVideoById))
+  .post(
+    asyncHandler(verifyJWT),
+    upload.fields([{ name: "thumbnail", maxCount: 1 }]),
+    asyncHandler(updateVideoDetails)
+  );
 
 // Error Handler
 router.use(errorHandler);
