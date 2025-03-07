@@ -7,7 +7,8 @@ import {
   getAllVideos,
   uploadVideo,
   getVideoById,
-  updateVideoDetails
+  updateVideoDetails,
+  deleteVideo
 } from "../controllers/video.controller.js";
 
 const router = Router();
@@ -35,7 +36,8 @@ router
     asyncHandler(verifyJWT),
     upload.fields([{ name: "thumbnail", maxCount: 1 }]),
     asyncHandler(updateVideoDetails)
-  );
+  )
+  .delete(asyncHandler(verifyJWT), asyncHandler(deleteVideo));
 
 // Error Handler
 router.use(errorHandler);
