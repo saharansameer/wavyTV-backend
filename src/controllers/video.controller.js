@@ -11,15 +11,13 @@ const getAllVideos = async (req, res) => {
   ]);
   Video.aggregatePaginate(videos);
 
-  return res
-    .status(200)
-    .json(
-      new ApiReponse({
-        status: 200,
-        message: "All videos fetched successfully",
-        data: videos
-      })
-    );
+  return res.status(200).json(
+    new ApiReponse({
+      status: 200,
+      message: "All videos fetched successfully",
+      data: videos
+    })
+  );
 };
 
 const uploadVideo = async (req, res) => {
@@ -64,6 +62,7 @@ const uploadVideo = async (req, res) => {
     owner: req.user._id,
     videoFile: videoFile.url,
     videoFilePublicId: videoFile.public_id,
+    videoFileDisplayName: videoFile.display_name,
     thumbnail: thumbnail.url,
     thumbnailPublicId: thumbnail.public_id
   });
