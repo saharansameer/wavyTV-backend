@@ -1,7 +1,10 @@
 import ApiError from "../utils/apiError.js";
 import ApiReponse from "../utils/apiResponse.js";
 import { Video } from "../models/video.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  uploadOnCloudinary,
+  deleteImageFromCloudinary
+} from "../utils/cloudinary.js";
 
 const getAllVideos = async (req, res) => {
   const videos = await Video.aggregate([
@@ -132,4 +135,73 @@ const getVideoById = async (req, res) => {
   );
 };
 
-export { getAllVideos, uploadVideo, getVideoById };
+const updateVideoDetails = async (req, res) => {
+  const { videoId } = req.params;
+  const { title, description } = req.body;
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
+
+  // Fetch video document by ID
+  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  if (!video) {
+    throw new ApiError({ status: 400, message: "Video does not exist" });
+  }
+
+  // Update title and description (If provided)
+  if (title !== undefined) {
+    const trimmedTitle = title.trim().replace(/\s+/g, " ");
+    video.title = trimmedTitle;
+  }
+  if (Object.prototype.hasOwnProperty.call(req.body, "description")) {
+    const trimmedDescription = description.trim().replace(/\s+/g, " ");
+    video.description = trimmedDescription;
+  }
+
+  // Validation after updating Title and Description
+  try {
+    video.validateSync();
+  } catch (err) {
+    throw new ApiError({ status: 400, message: err.message });
+  }
+
+  // Handle Thumbnail Update (if provided)
+  if (thumbnailLocalPath) {
+    // Upload new thumbnail
+    const thumbnail = await uploadOnCloudinary(
+      thumbnailLocalPath,
+      "image",
+      "thumbnails"
+    );
+
+    // Checks for issue while uploading new thumbnail
+    if (!thumbnail) {
+      throw new ApiError({
+        status: 500,
+        message: "Unable to update thumbnail"
+      });
+    }
+
+    // Delete old thumbnail
+    try {
+      await deleteImageFromCloudinary(video.thumbnailPublicId);
+    } catch (err) {
+      throw new ApiError({ status: 500, message: err.message });
+    }
+
+    // Update thumbnail details in DB
+    video.thumbnail = thumbnail.url;
+    video.thumbnailPublicId = thumbnail.public_id;
+  }
+
+  // Save Changes (title, description, thumbnail)
+  await video.save();
+
+  return res.status(200).json(
+    new ApiReponse({
+      status: 200,
+      message: "Video details updated successfully",
+      data: video
+    })
+  );
+};
+
+export { getAllVideos, uploadVideo, getVideoById, updateVideoDetails };
