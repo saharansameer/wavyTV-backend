@@ -3,7 +3,7 @@ import ApiReponse from "../utils/apiResponse.js";
 import { Video } from "../models/video.model.js";
 import {
   uploadOnCloudinary,
-  deleteImageFromCloudinary
+  destroyAssetFromCloudinary
 } from "../utils/cloudinary.js";
 
 const getAllVideos = async (req, res) => {
@@ -182,7 +182,7 @@ const updateVideoDetails = async (req, res) => {
 
     // Delete old thumbnail
     try {
-      await deleteImageFromCloudinary(video.thumbnailPublicId);
+      await destroyAssetFromCloudinary(video.thumbnailPublicId);
     } catch (err) {
       throw new ApiError({ status: 500, message: err.message });
     }
@@ -204,4 +204,9 @@ const updateVideoDetails = async (req, res) => {
   );
 };
 
-export { getAllVideos, uploadVideo, getVideoById, updateVideoDetails };
+export {
+  getAllVideos,
+  uploadVideo,
+  getVideoById,
+  updateVideoDetails
+};

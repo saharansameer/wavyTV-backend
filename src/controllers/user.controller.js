@@ -3,7 +3,7 @@ import ApiResponse from "../utils/apiResponse.js";
 import { User } from "../models/user.model.js";
 import {
   uploadOnCloudinary,
-  deleteImageFromCloudinary
+  destroyAssetFromCloudinary
 } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
@@ -109,7 +109,7 @@ const updateUserChannelDetails = async (req, res) => {
 
   // Delete old avatar/coverImage from cloudinary
   if (oldAvatarPublicId) {
-    const deleteOldAvatar = await deleteImageFromCloudinary(oldAvatarPublicId);
+    const deleteOldAvatar = await destroyAssetFromCloudinary(oldAvatarPublicId);
     if (!deleteOldAvatar) {
       throw new ApiError({
         status: 500,
@@ -118,7 +118,7 @@ const updateUserChannelDetails = async (req, res) => {
     }
   }
   if (oldCoverImagePublicId) {
-    const deleteOldCoverImage = await deleteImageFromCloudinary(
+    const deleteOldCoverImage = await destroyAssetFromCloudinary(
       oldCoverImagePublicId
     );
     if (!deleteOldCoverImage) {
