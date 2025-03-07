@@ -238,10 +238,38 @@ const deleteVideo = async (req, res) => {
   });
 };
 
+const togglePublishStatus = async (req, res) => {
+  const { videoId } = req.params;
+  // Find video by videoId (i.e. unique identifier)
+  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  // Checks for video's existence
+  if (!video) {
+    throw new ApiError({
+      status: 404,
+      message: "Video does not exist"
+    });
+  }
+
+  // Toggle publish status
+  video.isPublished = !video.isPublished
+
+  // Save Changes
+  await video.save()
+
+  return res.status(200).json(
+    new ApiReponse({
+      status: 200,
+      message: "Video publish status changed successfully",
+      data: { isPublished: video.isPublished }
+    })
+  );
+};
+
 export {
   getAllVideos,
   uploadVideo,
   getVideoById,
   updateVideoDetails,
-  deleteVideo
+  deleteVideo,
+  togglePublishStatus
 };
