@@ -5,7 +5,8 @@ const videoSchema = new Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
+      match: [/[a-zA-Z0-9]/, "Title can not be empty and must contain either a letter or a number"]
     },
     description: {
       type: String,
