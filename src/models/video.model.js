@@ -32,6 +32,9 @@ const videoSchema = new Schema(
     videoFilePublicId: {
       type: String
     },
+    videoFileDisplayName: {
+      type: String
+    },
     thumbnail: {
       type: String,
       required: true
