@@ -204,9 +204,44 @@ const updateVideoDetails = async (req, res) => {
   );
 };
 
+const deleteVideo = async (req, res) => {
+  const { videoId } = req.params;
+  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  if (!video) {
+    throw new ApiError({ status: 404, message: "Video does not exist" });
+  }
+
+  // Delete Vdieo and Thumbnail from Cloud
+  try {
+    await destroyAssetFromCloudinary(video.videoFilePublicId, "video");
+    await destroyAssetFromCloudinary(video.thumbnailPublicId);
+  } catch (err) {
+    throw new ApiError({
+      status: 500,
+      message: "Unable to delete assets from cloudinary"
+    });
+  }
+
+  // Delete Video Document
+  try {
+    await Video.deleteOne({ videoFileDisplayName: videoId });
+  } catch (err) {
+    throw new ApiError({
+      status: 500,
+      message: "Unable to delete video document"
+    });
+  }
+
+  return res.status(200).json({
+    status: 200,
+    message: "Video deleted successfully from DB and Cloud both."
+  });
+};
+
 export {
   getAllVideos,
   uploadVideo,
   getVideoById,
-  updateVideoDetails
+  updateVideoDetails,
+  deleteVideo
 };
