@@ -22,8 +22,10 @@ const getAllVideos = async (req, res) => {
 
 const uploadVideo = async (req, res) => {
   const { title, description } = req.body;
+  // Remove extra spaces from title
+  const trimmedTitle = title.trim().replace(/\s+/g, " ");
   // Checks if title is empty
-  if (!title) {
+  if (!trimmedTitle) {
     throw new ApiError({ status: 400, message: "Title is mandatory" });
   }
 
@@ -57,8 +59,8 @@ const uploadVideo = async (req, res) => {
 
   // Creating Video Document
   const video = new Video({
-    title,
-    description: description || "",
+    title: trimmedTitle,
+    description: description?.trim().replace(/\s+/g, " ") || "",
     owner: req.user._id,
     videoFile: videoFile.url,
     videoFilePublicId: videoFile.public_id,
@@ -121,15 +123,13 @@ const getVideoById = async (req, res) => {
     }
   ]);
 
-  return res
-    .status(200)
-    .json(
-      new ApiReponse({
-        status: 200,
-        message: "Video fetched successfully",
-        data: video
-      })
-    );
+  return res.status(200).json(
+    new ApiReponse({
+      status: 200,
+      message: "Video fetched successfully",
+      data: video
+    })
+  );
 };
 
 export { getAllVideos, uploadVideo, getVideoById };
