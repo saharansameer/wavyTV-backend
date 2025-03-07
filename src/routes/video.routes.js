@@ -8,7 +8,8 @@ import {
   uploadVideo,
   getVideoById,
   updateVideoDetails,
-  deleteVideo
+  deleteVideo,
+  togglePublishStatus
 } from "../controllers/video.controller.js";
 
 const router = Router();
@@ -29,6 +30,8 @@ router
 
 // GET - fetch video by id
 // POST - update video details (i.e title, description, thumbnail)
+// DELETE - delete video and its related data
+// PATCH - toggle video publish status
 router
   .route("/:videoId")
   .get(asyncHandler(getVideoById))
@@ -37,7 +40,8 @@ router
     upload.fields([{ name: "thumbnail", maxCount: 1 }]),
     asyncHandler(updateVideoDetails)
   )
-  .delete(asyncHandler(verifyJWT), asyncHandler(deleteVideo));
+  .delete(asyncHandler(verifyJWT), asyncHandler(deleteVideo))
+  .patch(asyncHandler(verifyJWT), asyncHandler(togglePublishStatus));
 
 // Error Handler
 router.use(errorHandler);
