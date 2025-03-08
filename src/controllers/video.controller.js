@@ -146,7 +146,10 @@ const updateVideoDetails = async (req, res) => {
     owner: req.user._id
   });
   if (!video) {
-    throw new ApiError({ status: 400, message: "User is not authorized or Video does not exist" });
+    throw new ApiError({
+      status: 400,
+      message: "User is not authorized or Video does not exist"
+    });
   }
 
   // Update title and description (If provided)
@@ -214,7 +217,10 @@ const deleteVideo = async (req, res) => {
     owner: req.user._id
   });
   if (!video) {
-    throw new ApiError({ status: 404, message: "User is not authorized or Video does not exist" });
+    throw new ApiError({
+      status: 404,
+      message: "User is not authorized or Video does not exist"
+    });
   }
 
   // Delete Vdieo and Thumbnail from Cloud
@@ -241,10 +247,12 @@ const deleteVideo = async (req, res) => {
     });
   }
 
-  return res.status(200).json({
-    status: 200,
-    message: "Video deleted successfully from DB and Cloud both."
-  });
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Video deleted successfully from DB and Cloud both."
+    })
+  );
 };
 
 const togglePublishStatus = async (req, res) => {
