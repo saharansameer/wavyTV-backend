@@ -105,34 +105,19 @@ const updateTweet = async (req, res) => {
   const trimmedContent = content.trim().replace(/\s+/g, " ");
   // Checks If user sent valid content
   if (!trimmedContent) {
-    throw new ApiError({ status: 404, message: "Tweet has no content" });
+    throw new ApiError({ status: 400, message: "Tweet has no content" });
   }
 
-  const tweet = await Tweet.findById(tweetId);
+  const updatedTweet = await Tweet.findOneAndUpdate(
+    { _id: tweetId, owner: req.user._id },
+    { content: trimmedContent },
+    { new: true, runValidators: true }
+  );
   // Checks if tweet exits
-  if (!tweet) {
+  if (!updatedTweet) {
     throw new ApiError({
       status: 404,
-      message: "Tweet not found"
-    });
-  }
-
-  // Checks if logged in user is the owner of tweet
-  if (tweet.owner !== req.user._id) {
-    throw new ApiError({
-      status: 403,
-      message: "User is not authorized to edit this tweet"
-    });
-  }
-
-  // Update tweet content
-  try {
-    tweet.content = trimmedContent;
-    await tweet.save();
-  } catch (err) {
-    throw new ApiError({
-      status: 500,
-      message: "Unable to update tweet content"
+      message: "Tweet not found or user is not authorized to update it"
     });
   }
 
@@ -144,4 +129,6 @@ const updateTweet = async (req, res) => {
   });
 };
 
-export { createTweet, getUserTweets, updateTweet };
+
+
+export { createTweet, getUserTweets, updateTweet};
