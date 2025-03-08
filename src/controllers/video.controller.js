@@ -1,5 +1,5 @@
 import ApiError from "../utils/apiError.js";
-import ApiReponse from "../utils/apiResponse.js";
+import ApiResponse from "../utils/apiResponse.js";
 import { Video } from "../models/video.model.js";
 import {
   uploadOnCloudinary,
@@ -15,7 +15,7 @@ const getAllVideos = async (req, res) => {
   Video.aggregatePaginate(videos);
 
   return res.status(200).json(
-    new ApiReponse({
+    new ApiResponse({
       status: 200,
       message: "All videos fetched successfully",
       data: videos
@@ -84,7 +84,7 @@ const uploadVideo = async (req, res) => {
 
   // Final Response
   return res.status(200).json(
-    new ApiReponse({
+    new ApiResponse({
       status: 200,
       message: "Video along with Thumbnail uploaded successfully"
     })
@@ -127,7 +127,7 @@ const getVideoById = async (req, res) => {
   ]);
 
   return res.status(200).json(
-    new ApiReponse({
+    new ApiResponse({
       status: 200,
       message: "Video fetched successfully",
       data: video
@@ -141,9 +141,12 @@ const updateVideoDetails = async (req, res) => {
   const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
   // Fetch video document by ID
-  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  const video = await Video.findOne({
+    videoFileDisplayName: videoId,
+    owner: req.user._id
+  });
   if (!video) {
-    throw new ApiError({ status: 400, message: "Video does not exist" });
+    throw new ApiError({ status: 400, message: "User is not authorized or Video does not exist" });
   }
 
   // Update title and description (If provided)
@@ -196,7 +199,7 @@ const updateVideoDetails = async (req, res) => {
   await video.save();
 
   return res.status(200).json(
-    new ApiReponse({
+    new ApiResponse({
       status: 200,
       message: "Video details updated successfully",
       data: video
@@ -206,9 +209,12 @@ const updateVideoDetails = async (req, res) => {
 
 const deleteVideo = async (req, res) => {
   const { videoId } = req.params;
-  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  const video = await Video.findOne({
+    videoFileDisplayName: videoId,
+    owner: req.user._id
+  });
   if (!video) {
-    throw new ApiError({ status: 404, message: "Video does not exist" });
+    throw new ApiError({ status: 404, message: "User is not authorized or Video does not exist" });
   }
 
   // Delete Vdieo and Thumbnail from Cloud
@@ -224,7 +230,10 @@ const deleteVideo = async (req, res) => {
 
   // Delete Video Document
   try {
-    await Video.deleteOne({ videoFileDisplayName: videoId });
+    await Video.deleteOne({
+      videoFileDisplayName: videoId,
+      owner: req.user._id
+    });
   } catch (err) {
     throw new ApiError({
       status: 500,
@@ -241,23 +250,26 @@ const deleteVideo = async (req, res) => {
 const togglePublishStatus = async (req, res) => {
   const { videoId } = req.params;
   // Find video by videoId (i.e. unique identifier)
-  const video = await Video.findOne({ videoFileDisplayName: videoId });
+  const video = await Video.findOne({
+    videoFileDisplayName: videoId,
+    owner: req.user._id
+  });
   // Checks for video's existence
   if (!video) {
     throw new ApiError({
       status: 404,
-      message: "Video does not exist"
+      message: "User is not authorized or Video does not exist"
     });
   }
 
   // Toggle publish status
-  video.isPublished = !video.isPublished
+  video.isPublished = !video.isPublished;
 
   // Save Changes
-  await video.save()
+  await video.save();
 
   return res.status(200).json(
-    new ApiReponse({
+    new ApiResponse({
       status: 200,
       message: "Video publish status changed successfully",
       data: { isPublished: video.isPublished }
