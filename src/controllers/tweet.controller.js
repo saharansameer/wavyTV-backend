@@ -98,4 +98,50 @@ const getUserTweets = async (req, res) => {
   );
 };
 
-export { createTweet, getUserTweets };
+const updateTweet = async (req, res) => {
+  const { tweetId } = req.params;
+  const { content } = req.body;
+  // Remove extra spaces from content
+  const trimmedContent = content.trim().replace(/\s+/g, " ");
+  // Checks If user sent valid content
+  if (!trimmedContent) {
+    throw new ApiError({ status: 404, message: "Tweet has no content" });
+  }
+
+  const tweet = await Tweet.findById(tweetId);
+  // Checks if tweet exits
+  if (!tweet) {
+    throw new ApiError({
+      status: 404,
+      message: "Tweet not found"
+    });
+  }
+
+  // Checks if logged in user is the owner of tweet
+  if (tweet.owner !== req.user._id) {
+    throw new ApiError({
+      status: 403,
+      message: "User is not authorized to edit this tweet"
+    });
+  }
+
+  // Update tweet content
+  try {
+    tweet.content = trimmedContent;
+    await tweet.save();
+  } catch (err) {
+    throw new ApiError({
+      status: 500,
+      message: "Unable to update tweet content"
+    });
+  }
+
+  // Final Response
+  return res.status(200).json({
+    status: 200,
+    message: "Tweet updated successfully",
+    data: updatedTweet
+  });
+};
+
+export { createTweet, getUserTweets, updateTweet };
