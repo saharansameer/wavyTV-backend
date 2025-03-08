@@ -27,4 +27,11 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/video", videoRouter);
 
+// handle undefined routes
+app.use((req, res, next) => {
+  return res
+    .status(404)
+    .json({ status: 404, message: "oops! Route not found", success: false });
+});
+
 export default app;
