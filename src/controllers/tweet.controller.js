@@ -1,6 +1,7 @@
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import { Tweet } from "../models/tweet.model.js";
+import { User } from "../models/user.model.js";
 
 const createTweet = async (req, res) => {
   const { content } = req.body;
@@ -34,4 +35,67 @@ const createTweet = async (req, res) => {
   );
 };
 
-export { createTweet };
+const getUserTweets = async (req, res) => {
+  const { username } = req.params;
+
+  // Find user by username
+  const user = await User.findOne({ username: username });
+  // Checks if user exists
+  if (!user) {
+    throw new ApiError({
+      status: 404,
+      message: "User not found with the given username"
+    });
+  }
+
+  // Fetch Tweets
+  const tweets = await Tweet.aggregate([
+    {
+      $match: {
+        owner: user._id
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              fullName: 1,
+              username: 1,
+              avatar: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner"
+        }
+      }
+    }
+  ]);
+
+  if (!tweets) {
+    throw new ApiError({
+      status: 404,
+      message: "User has created no tweets or unable to fetch"
+    });
+  }
+
+  // Final Response
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Tweets fetched successfully",
+      data: tweets
+    })
+  );
+};
+
+export { createTweet, getUserTweets };
