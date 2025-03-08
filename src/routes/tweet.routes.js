@@ -5,7 +5,8 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createTweet,
   getUserTweets,
-  updateTweet
+  updateTweet,
+  deleteTweet
 } from "../controllers/tweet.controller.js";
 
 const router = Router();
@@ -17,9 +18,11 @@ router.route("/").post(asyncHandler(verifyJWT), asyncHandler(createTweet));
 router.route("/:username").get(asyncHandler(getUserTweets));
 
 // PATCH - update tweet content
+// DELETE - delete tweet
 router
   .route("/:tweetId")
-  .patch(asyncHandler(verifyJWT), asyncHandler(updateTweet));
+  .patch(asyncHandler(verifyJWT), asyncHandler(updateTweet))
+  .delete(asyncHandler(verifyJWT), asyncHandler(deleteTweet));
 
 // Error Handler
 router.use(errorHandler);
