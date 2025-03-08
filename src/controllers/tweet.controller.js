@@ -122,13 +122,33 @@ const updateTweet = async (req, res) => {
   }
 
   // Final Response
-  return res.status(200).json({
-    status: 200,
-    message: "Tweet updated successfully",
-    data: updatedTweet
-  });
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Tweet updated successfully",
+      data: updatedTweet
+    })
+  );
 };
 
+const deleteTweet = async (req, res) => {
+  const { tweetId } = req.params;
+  const deletedTweet = await Tweet.findOneAndDelete({
+    _id: tweetId,
+    owner: req.user._id
+  });
+  if (!deletedTweet) {
+    throw new ApiError({
+      status: 404,
+      message: "Tweet not found or user is not authorized to delete it"
+    });
+  }
 
+  return res
+    .status(200)
+    .json(
+      new ApiResponse({ status: 200, message: "Tweet deleted successfully" })
+    );
+};
 
-export { createTweet, getUserTweets, updateTweet};
+export { createTweet, getUserTweets, updateTweet, deleteTweet };
