@@ -8,7 +8,11 @@ const tweetSchema = new Schema(
     },
     content: {
       type: String,
-      required: [true, "tweet cant be empty"]
+      required: [true, "tweet cant be empty"],
+      match: [
+        /[a-zA-Z0-9]/,
+        "Tweet content can not be empty and must contain either a letter or a number"
+      ]
     },
     comments: [
       {
