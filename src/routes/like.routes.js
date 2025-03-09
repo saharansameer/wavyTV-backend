@@ -8,7 +8,7 @@ const router = Router();
 
 // POST - Toggle video like
 router
-  .route("/:videoId")
+  .route("/video/:videoId")
   .post(asyncHandler(verifyJWT), asyncHandler(toggleVideoLike));
 
 // Error Handler
