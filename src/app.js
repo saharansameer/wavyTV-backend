@@ -22,12 +22,14 @@ import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import videoRouter from "./routes/video.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
+import likeRouter from "./routes/like.routes.js";
 
 // routes declaration
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/video", videoRouter);
 app.use("/api/tweet", tweetRouter);
+app.use("/api/like", likeRouter);
 
 // handle undefined routes
 app.use((req, res, next) => {
