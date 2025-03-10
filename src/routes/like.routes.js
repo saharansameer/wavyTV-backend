@@ -9,15 +9,14 @@ import {
 
 const router = Router();
 
+// User Authorization
+router.use(asyncHandler(verifyJWT));
+
 // POST - Toggle video like
-router
-  .route("/video/:videoId")
-  .post(asyncHandler(verifyJWT), asyncHandler(toggleVideoLike));
+router.route("/video/:videoId").post(asyncHandler(toggleVideoLike));
 
 // POST - Toggle tweet like
-router
-  .route("/tweet/:tweetId")
-  .post(asyncHandler(verifyJWT), asyncHandler(toggleTweetLike));
+router.route("/tweet/:tweetId").post(asyncHandler(toggleTweetLike));
 
 // Error Handler
 router.use(errorHandler);
