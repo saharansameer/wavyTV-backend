@@ -70,4 +70,52 @@ const addCommentToTweet = async (req, res) => {
   );
 };
 
-export { addCommentToVideo, addCommentToTweet };
+const updateComment = async (req, res) => {
+  const { commentId } = req.params;
+  const { content } = req.body;
+  // Remove extra spaces from comment
+  const trimmedContent = content.trim().replace(/\s+/g, " ");
+  // Checks if comment is empty
+  if (!trimmedContent) {
+    throw new ApiError({ status: 400, message: "Comment content is empty" });
+  }
+
+  // Update Comment
+  const updatedComment = await Comment.findByIdAndUpdate(
+    commentId,
+    { content: trimmedContent },
+    { new: true, runValidators: true }
+  );
+  if (!updatedComment) {
+    throw new ApiError({ status: 200, message: "Unable to update comment" });
+  }
+
+  // Final Response
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Comment updated successfully",
+      data: updatedComment
+    })
+  );
+};
+
+const deleteComment = async (req, res) => {
+  const { commentId } = req.params;
+
+  // Delete Comment
+  try {
+    await Comment.findByIdAndDelete(commentId);
+  } catch (err) {
+    throw new ApiError({ status: 500, message: err.message });
+  }
+
+  // Final Response
+  return res
+    .status(200)
+    .json(
+      new ApiResponse({ status: 200, message: "Comment deleted successfully" })
+    );
+};
+
+export { addCommentToVideo, addCommentToTweet, updateComment, deleteComment };
