@@ -6,19 +6,24 @@ import {
   addCommentToVideo,
   addCommentToTweet,
   updateComment,
-  deleteComment
+  deleteComment,
+  getVideoComments,
+  getTweetComments
 } from "../controllers/comment.controller.js";
 
 const router = Router();
 
+// GET - fetch video comments
 // POST - add comment on video
 router
   .route("/video/:videoId")
+  .get(asyncHandler(getVideoComments))
   .post(asyncHandler(verifyJWT), asyncHandler(addCommentToVideo));
 
 // POST - add comment on tweet
 router
   .route("/tweet/:tweetId")
+  .get(asyncHandler(getTweetComments))
   .post(asyncHandler(verifyJWT), asyncHandler(addCommentToTweet));
 
 // PATCH - update comment
