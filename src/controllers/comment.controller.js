@@ -5,10 +5,16 @@ import { Comment } from "../models/comment.model.js";
 const addCommentToVideo = async (req, res) => {
   const { videoId } = req.params;
   const { content } = req.body;
+  // Remove extra spaces from comment
+  const trimmedContent = content.trim().replace(/\s+/g, " ");
+  // Checks if comment is empty
+  if (!trimmedContent) {
+    throw new ApiError({ status: 400, message: "Comment content is empty" });
+  }
 
   // Create Comment
   const comment = await Comment.create({
-    content: content,
+    content: trimmedContent,
     video: videoId,
     commentBy: req.user._id
   });
@@ -33,10 +39,16 @@ const addCommentToVideo = async (req, res) => {
 const addCommentToTweet = async (req, res) => {
   const { tweetId } = req.params;
   const { content } = req.body;
+  // Remove extra spaces from comment
+  const trimmedContent = content.trim().replace(/\s+/g, " ");
+  // Checks if comment is empty
+  if (!trimmedContent) {
+    throw new ApiError({ status: 400, message: "Comment content is empty" });
+  }
 
   // Creating Comment
   const comment = await Comment.create({
-    content: content,
+    content: trimmedContent,
     tweet: tweetId,
     commentBy: req.user._id
   });
