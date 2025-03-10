@@ -5,7 +5,8 @@ const commentSchema = new Schema(
   {
     content: {
       type: String,
-      required: true
+      required: true,
+      match: [/[a-zA-Z0-9]/, "Comment can not be empty"]
     },
     commentBy: {
       type: Schema.Types.ObjectId,
