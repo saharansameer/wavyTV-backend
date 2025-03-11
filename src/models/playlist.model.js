@@ -4,9 +4,10 @@ const playlistSchema = new Schema(
   {
     title: {
       type: String,
-      required: [true, "Playlist title is required"]
+      required: [true, "Playlist title is required"],
+      match: [/[a-zA-Z0-9]/, "Title can not be empty"]
     },
-    descriptoin: {
+    description: {
       type: String
     },
     owner: {
