@@ -6,7 +6,9 @@ import {
   createPlaylist,
   getUserPlaylists,
   updatePlaylist,
-  deletePlaylist
+  deletePlaylist,
+  addVideoToPlaylist,
+  removeVideoFromPlaylist
 } from "../controllers/playlist.controller.js";
 
 const router = Router();
@@ -27,6 +29,13 @@ router
   .route("/:playlistId")
   .patch(asyncHandler(updatePlaylist))
   .delete(asyncHandler(deletePlaylist));
+
+// POST - add video to playlist
+// GET - remove video from playlist (i.e videos array)
+router
+  .route("/video")
+  .post(asyncHandler(addVideoToPlaylist))
+  .get(asyncHandler(removeVideoFromPlaylist));
 
 // Error Handler
 router.use(errorHandler);
