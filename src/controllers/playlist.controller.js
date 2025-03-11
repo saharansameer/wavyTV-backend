@@ -119,4 +119,81 @@ const deletePlaylist = async (req, res) => {
     );
 };
 
-export { createPlaylist, getUserPlaylists, updatePlaylist, deletePlaylist };
+const addVideoToPlaylist = async (req, res) => {
+  const { playlistId, videoId } = req.query;
+
+  // Add video to playlist
+  const playlist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: req.user._id,
+      videos: { $ne: videoId }
+    },
+    {
+      $addToSet: {
+        videos: videoId
+      }
+    },
+    {
+      new: true
+    }
+  );
+
+  // If video already exists in playlist
+  if (!playlist) {
+    throw new ApiError({
+      status: 400,
+      message: "Video already exists in playlist"
+    });
+  }
+
+  // Final Response
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Video added to playlist successfully",
+      data: playlist
+    })
+  );
+};
+
+const removeVideoFromPlaylist = async (req, res) => {
+  const { playlistId, videoId } = req.query;
+  // Remove video from playlist
+  const playlist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: req.user._id
+    },
+    {
+      $pull: { videos: videoId }
+    },
+    {
+      new: true
+    }
+  );
+
+  // Checks if video already removed from playlist
+  if (!playlist) {
+    throw new ApiError({
+      status: 400,
+      message: "Video does not exist in playlist"
+    });
+  }
+
+  // Final Response
+  return res.status(200).json( new ApiResponse({
+    status: 200,
+    message: "Video removed from playlist successfully",
+    data: playlist
+  }));
+};
+
+export {
+  createPlaylist,
+  getUserPlaylists,
+  updatePlaylist,
+  deletePlaylist,
+  addVideoToPlaylist,
+  removeVideoFromPlaylist
+};
