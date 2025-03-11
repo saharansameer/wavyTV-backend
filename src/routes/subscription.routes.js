@@ -2,13 +2,20 @@ import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { errorHandler } from "../middlewares/error.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { toggleSubscription } from "../controllers/subscription.controller.js";
+import {
+  toggleSubscription,
+  getChannelSubscribers
+} from "../controllers/subscription.controller.js";
 const router = Router();
 
 // User Authorization
 router.use(asyncHandler(verifyJWT));
 
-router.route("/subscribe/:channelId").post(asyncHandler(toggleSubscription));
+// POST - Toggle channel subscription
+router.route("/:channelId").post(asyncHandler(toggleSubscription));
+
+// GET - Fetch all subscribers
+router.route("/subscribers").get(asyncHandler(getChannelSubscribers));
 
 // Error Handler
 router.use(errorHandler);
