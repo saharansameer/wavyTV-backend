@@ -24,6 +24,7 @@ import videoRouter from "./routes/video.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
 import commentRouter from "./routes/comment.routes.js";
 import likeRouter from "./routes/like.routes.js";
+import subscriptionRouter from "./routes/subscription.routes.js";
 
 // routes declaration
 app.use("/api/auth", authRouter);
@@ -32,7 +33,7 @@ app.use("/api/video", videoRouter);
 app.use("/api/tweet", tweetRouter);
 app.use("/api/comment", commentRouter);
 app.use("/api/like", likeRouter);
-
+app.use("/api/subscription", subscriptionRouter);
 
 // handle undefined routes
 app.use((req, res, next) => {
