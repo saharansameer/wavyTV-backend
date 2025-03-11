@@ -49,4 +49,74 @@ const getUserPlaylists = async (req, res) => {
   );
 };
 
-export { createPlaylist, getUserPlaylists };
+const updatePlaylist = async (req, res) => {
+  const { playlistId } = req.params;
+  const { title, description } = req.body;
+  // Remove extra spaces from title
+  const trimmedTitle = title.trim().replace(/\s+/g, " ");
+  // Checks if title is empty
+  if (!trimmedTitle) {
+    throw new ApiError({ status: 400, message: "Title is required" });
+  }
+
+  // Initialize new details (recieved from user)
+  const newDetails = {
+    title: trimmedTitle
+  };
+
+  // If user wants to change description
+  if (description !== undefined) {
+    newDetails.description = description;
+  }
+
+  // Update Playlist title and description
+  const playlist = await Playlist.findOneAndUpdate(
+    {
+      _id: playlistId,
+      owner: req.user._id
+    },
+    {
+      ...newDetails
+    },
+    { new: true, runValidators: true }
+  );
+
+  if (!playlist) {
+    throw new ApiError({
+      status: 400,
+      message: "User is not authorized or playlist does not exists"
+    });
+  }
+
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Playlist details updated successfully",
+      data: playlist
+    })
+  );
+};
+
+const deletePlaylist = async (req, res) => {
+  const { playlistId } = req.params;
+
+  const deleted = await Playlist.findOneAndDelete({
+    _id: playlistId,
+    owner: req.user._id
+  });
+
+  if (!deleted) {
+    throw new ApiError({
+      status: 400,
+      message: "User is not authorized or playlist does not exists"
+    });
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse({ status: 200, message: "Playlist deleted successfully" })
+    );
+};
+
+export { createPlaylist, getUserPlaylists, updatePlaylist, deletePlaylist };
