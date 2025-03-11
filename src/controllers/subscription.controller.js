@@ -76,7 +76,7 @@ const getChannelSubscribers = async (req, res) => {
       }
     }
   ]);
-  
+
   // Checks if channel has any subscriber
   if (subscribers.length === 0) {
     throw new ApiError({ status: 400, message: "Channel has no subscribers" });
@@ -92,4 +92,58 @@ const getChannelSubscribers = async (req, res) => {
   );
 };
 
-export { toggleSubscription, getChannelSubscribers };
+const getSubscribedChannels = async (req, res) => {
+  // Fetch all subscribed channels details
+  const channels = await Subscription.aggregate([
+    {
+      $match: {
+        subscriber: mongoose.isValidObjectId(req.user._id)
+          ? new mongoose.Types.ObjectId(req.user._id)
+          : null
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "channel",
+        foreignField: "_id",
+        as: "channel",
+        pipeline: [
+          {
+            $project: {
+              fullName: 1,
+              username: 1,
+              avatar: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        channel: {
+          $first: "$channel"
+        }
+      }
+    }
+  ]);
+
+  // Checks if user has subscribed to any channels
+  if (channels.length === 0) {
+    throw new ApiError({
+      status: 400,
+      message: "User has not subscribed to any channel"
+    });
+  }
+
+  // Final Response
+  return res.status(200).json(
+    new ApiResponse({
+      status: 200,
+      message: "Channels fetched successfully",
+      data: channels
+    })
+  );
+};
+
+export { toggleSubscription, getChannelSubscribers, getSubscribedChannels };
