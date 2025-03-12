@@ -26,6 +26,7 @@ import commentRouter from "./routes/comment.routes.js";
 import likeRouter from "./routes/like.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import playlistRouter from "./routes/playlist.routes.js";
+import rootRouter from "./routes/root.routes.js";
 
 // routes declaration
 app.use("/api/auth", authRouter);
@@ -36,6 +37,7 @@ app.use("/api/comment", commentRouter);
 app.use("/api/like", likeRouter);
 app.use("/api/subscription", subscriptionRouter);
 app.use("/api/playlist", playlistRouter);
+app.use("/", rootRouter);
 
 // handle undefined routes
 app.use((req, res, next) => {
