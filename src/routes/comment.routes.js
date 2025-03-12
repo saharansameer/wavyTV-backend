@@ -20,6 +20,7 @@ router
   .get(asyncHandler(getVideoComments))
   .post(asyncHandler(verifyJWT), asyncHandler(addCommentToVideo));
 
+// GET - fetch tweet comments
 // POST - add comment on tweet
 router
   .route("/tweet/:tweetId")
