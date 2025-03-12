@@ -67,7 +67,6 @@ const uploadVideo = async (req, res) => {
     owner: req.user._id,
     videoFile: videoFile.url,
     videoFilePublicId: videoFile.public_id,
-    videoFileDisplayName: videoFile.display_name,
     thumbnail: thumbnail.url,
     thumbnailPublicId: thumbnail.public_id
   });
@@ -97,7 +96,9 @@ const getVideoById = async (req, res) => {
   const video = await Video.aggregate([
     {
       $match: {
-        videoFileDisplayName: videoId
+        _id: mongoose.isValidObjectId(videoId)
+        ? new mongoose.Types.ObjectId(videoId)
+        : null
       }
     },
     {
@@ -142,7 +143,7 @@ const updateVideoDetails = async (req, res) => {
 
   // Fetch video document by ID
   const video = await Video.findOne({
-    videoFileDisplayName: videoId,
+    _id: videoId,
     owner: req.user._id
   });
   if (!video) {
@@ -213,7 +214,7 @@ const updateVideoDetails = async (req, res) => {
 const deleteVideo = async (req, res) => {
   const { videoId } = req.params;
   const video = await Video.findOne({
-    videoFileDisplayName: videoId,
+    _id: videoId,
     owner: req.user._id
   });
   if (!video) {
@@ -237,7 +238,7 @@ const deleteVideo = async (req, res) => {
   // Delete Video Document
   try {
     await Video.deleteOne({
-      videoFileDisplayName: videoId,
+      _id: videoId,
       owner: req.user._id
     });
   } catch (err) {
@@ -259,7 +260,7 @@ const togglePublishStatus = async (req, res) => {
   const { videoId } = req.params;
   // Find video by videoId (i.e. unique identifier)
   const video = await Video.findOne({
-    videoFileDisplayName: videoId,
+    _id: videoId,
     owner: req.user._id
   });
   // Checks for video's existence
