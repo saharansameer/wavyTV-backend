@@ -15,35 +15,34 @@ import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
 
 // GET - current user details
-router
-  .route("/info/:username")
-  .get(asyncHandler(verifyJWT), asyncHandler(getCurrentUser));
-
-// GET - User Channel Profile
 // PATCH - fullname, username, email
 router
-  .route("/:username")
-  .get(asyncHandler(getUserChannelProfile))
+  .route("/")
+  .get(asyncHandler(verifyJWT), asyncHandler(getCurrentUser))
   .patch(asyncHandler(verifyJWT), asyncHandler(updateUserAccountDetails));
 
+// GET - User Channel Profile
 // PATCH - avatar, coverImage
-router.route("/:username/channel").patch(
-  asyncHandler(verifyJWT),
-  upload.fields([
-    { name: "avatar", maxCount: 1 },
-    { name: "coverImage", maxCount: 1 }
-  ]),
-  asyncHandler(updateUserChannelDetails)
-);
+router
+  .route("/channel/:username")
+  .get(asyncHandler(getUserChannelProfile))
+  .patch(
+    asyncHandler(verifyJWT),
+    upload.fields([
+      { name: "avatar", maxCount: 1 },
+      { name: "coverImage", maxCount: 1 }
+    ]),
+    asyncHandler(updateUserChannelDetails)
+  );
 
 // PATCH - password
 router
-  .route("/:username/security")
+  .route("/security")
   .patch(asyncHandler(verifyJWT), asyncHandler(changeUserPassword));
 
 // GET - User Watch History
 router
-  .route("/:username/history")
+  .route("/history")
   .get(asyncHandler(verifyJWT), asyncHandler(getUserWatchHistory));
 
 // Error Handler
