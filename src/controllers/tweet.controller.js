@@ -2,6 +2,7 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import { Tweet } from "../models/tweet.model.js";
 import { User } from "../models/user.model.js";
+import mongoose from "mongoose";
 
 const createTweet = async (req, res) => {
   const { content } = req.body;
@@ -81,7 +82,7 @@ const getUserTweets = async (req, res) => {
     }
   ]);
 
-  if (!tweets) {
+  if (tweets.length === 0) {
     throw new ApiError({
       status: 404,
       message: "User has created no tweets or unable to fetch"
@@ -151,4 +152,54 @@ const deleteTweet = async (req, res) => {
     );
 };
 
-export { createTweet, getUserTweets, updateTweet, deleteTweet };
+const getTweetById = async (req, res) => {
+  const { tweetId } = req.params;
+  const tweet = await Tweet.aggregate([
+    {
+      $match: {
+        _id: mongoose.isValidObjectId(tweetId)
+          ? new mongoose.Types.ObjectId(tweetId)
+          : null
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              fullName: 1,
+              username: 1,
+              avatar: 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner"
+        }
+      }
+    }
+  ]);
+
+  if (tweet.length === 0) {
+    throw new ApiError({
+      staus: 400,
+      message: "Tweet not found, Invalid tweet id"
+    });
+  }
+
+  return res.status(200).json( new ApiResponse({
+    status: 200,
+    message: "Tweet fetched successfully",
+    data: tweet
+  }));
+};
+
+export { createTweet, getUserTweets, updateTweet, deleteTweet, getTweetById };

@@ -6,7 +6,8 @@ import {
   createTweet,
   getUserTweets,
   updateTweet,
-  deleteTweet
+  deleteTweet,
+  getTweetById
 } from "../controllers/tweet.controller.js";
 
 const router = Router();
@@ -15,12 +16,14 @@ const router = Router();
 router.route("/").post(asyncHandler(verifyJWT), asyncHandler(createTweet));
 
 // GET - fetch tweets by username
-router.route("/:username").get(asyncHandler(getUserTweets));
+router.route("/user/:username").get(asyncHandler(getUserTweets));
 
+// GET - fetch tweet by id
 // PATCH - update tweet content
 // DELETE - delete tweet
 router
   .route("/:tweetId")
+  .get(asyncHandler(getTweetById))
   .patch(asyncHandler(verifyJWT), asyncHandler(updateTweet))
   .delete(asyncHandler(verifyJWT), asyncHandler(deleteTweet));
 
