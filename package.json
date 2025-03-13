@@ -1,5 +1,5 @@
 {
-  "name": "wavytv-backend-js",
+  "name": "wavytv-backend",
   "version": "1.0.0",
   "description": "A Node.js backend for a video streaming platform",
   "type": "module",

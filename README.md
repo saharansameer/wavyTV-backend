@@ -1,8 +1,8 @@
-# wavyTV Backend (JS-v0)
+# wavyTV Backend
 
 A Node.js-powered backend for a video streaming platform, providing essential features like user authentication, video uploads, playlists, comments, likes, and subscriptions. The project follows a structured approach with controllers handling logic, models managing data, middlewares ensuring smooth processing, and routes defining API endpoints. 
 
-The backend is deployed and available at: **[wavytv-backend-js.vercel.app](https://wavytv-backend-js.vercel.app)**
+The backend is deployed and available at: **[wavytv-backend.vercel.app](https://wavytv-backend.vercel.app)**
 
 ## Tech Stack
 
